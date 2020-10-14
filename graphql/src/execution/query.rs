@@ -3,7 +3,7 @@ use std::collections::hash_map::DefaultHasher;
 use std::collections::HashMap;
 use std::hash::{Hash, Hasher};
 use std::sync::Arc;
-use std::time::Instant;
+use std::time::{Duration, Instant};
 
 use graph::data::graphql::{
     ext::{DocumentExt, TypeExt},
@@ -259,6 +259,19 @@ impl Query {
                 "variables" => &self.variables_text,
                 "query_time_ms" => self.start.elapsed().as_millis(),
                 "block" => block,
+            );
+        }
+    }
+
+    /// Log details about the execution of a subscription
+    pub fn log_subscription_execution(&self, duration: Duration) {
+        if *graph::log::LOG_GQL_TIMING {
+            info!(
+                &self.logger,
+                "Subscription timing (GraphQL)";
+                "query" => &self.query_text,
+                "variables" => &self.variables_text,
+                "query_time_ms" => duration.as_millis(),
             );
         }
     }
